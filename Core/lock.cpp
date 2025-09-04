@@ -10,11 +10,7 @@
 #include <string>
 #include <vector>
 #include "veracrypt.h"
-#include "cryptopp/aes.h"
-#include "cryptopp/gcm.h"
-#include "cryptopp/filters.h"
-#include "cryptopp/osrng.h"
-#include "polymorphic_engine.h" // Your polymorphic_encrypt/decrypt
+#include "all_headers.h"
 
 namespace fs = std::filesystem;
 using namespace CryptoPP;
