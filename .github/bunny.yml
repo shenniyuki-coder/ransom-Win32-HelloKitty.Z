@@ -1,0 +1,51 @@
+name: Eye of Goliath 
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  honeypot:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Initialize Logging
+        run: |
+          mkdir -p honeypot_logs
+          LOGFILE=honeypot_logs/$(date +%s)_log.txt
+          echo "=== Honeypot Triggered ===" > $LOGFILE
+          echo "Repo: $GITHUB_REPOSITORY" >> $LOGFILE
+          echo "Actor: $GITHUB_ACTOR" >> $LOGFILE
+          echo "Event: $GITHUB_EVENT_NAME" >> $LOGFILE
+          echo "Ref: $GITHUB_REF" >> $LOGFILE
+          echo "Workflow: $GITHUB_WORKFLOW" >> $LOGFILE
+
+      - name: Detect Suspicious Actor
+        run: |
+          # Detect if actor is a forked PR
+          if [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then
+            PR_FORK=$(jq -r .pull_request.head.repo.fork "$GITHUB_EVENT_PATH")
+            if [ "$PR_FORK" = "true" ]; then
+              echo "Fork detected from $GITHUB_ACTOR" >> $LOGFILE
+            fi
+          fi
+
+      - name: Fake Secret Simulation
+        run: |
+          FAKE_KEYS=("FAKE_API_KEY" "FAKE_SECRET_TOKEN" "DB_PASSWORD_FAKE")
+          for key in "${FAKE_KEYS[@]}"; do
+            echo "Simulating secret access: $key attempted by $GITHUB_ACTOR" >> $LOGFILE
+            # Optional: simulate "exfiltration" without real data
+            curl -s -X POST -d "key=$key&actor=$GITHUB_ACTOR&repo=$GITHUB_REPOSITORY" https://your-server.example/honeypot-endpoint
+          done
+
+      - name: Optional Deception File
+        run: |
+          echo "You found a fake secret! This repo is monitored." > honeypot_logs/README_FAKE_SECRET.txt
+
+      - name: Final Log Output
+        run: |
+          cat $LOGFILE
