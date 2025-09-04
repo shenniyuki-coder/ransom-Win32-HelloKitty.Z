@@ -9,7 +9,7 @@
 #include <Wbemidl.h> 
 #include <string>
 #include <vector>
-#include "veracrypt.h"
+#include "vera_crypt.h"
 #include "all_headers.h"
 
 namespace fs = std::filesystem;
