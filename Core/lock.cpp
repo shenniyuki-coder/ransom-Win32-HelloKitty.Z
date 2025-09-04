@@ -10,6 +10,101 @@
 #include <string>
 #include <vector>
 #include "veracrypt.h"
+#include "cryptopp/aes.h"
+#include "cryptopp/gcm.h"
+#include "cryptopp/filters.h"
+#include "cryptopp/osrng.h"
+#include "polymorphic_engine.h" // Your polymorphic_encrypt/decrypt
+
+namespace fs = std::filesystem;
+using namespace CryptoPP;
+
+constexpr size_t CHUNK_SIZE = 64 * 1024; // 64 KB
+
+// -----------------------
+// AES Helpers
+// -----------------------
+std::vector<uint8_t> generate_aes_key(size_t key_size = 32) {
+    AutoSeededRandomPool prng;
+    std::vector<uint8_t> key(key_size);
+    prng.GenerateBlock(key.data(), key.size());
+    return key;
+}
+
+std::vector<uint8_t> encrypt_chunk(const std::vector<uint8_t>& chunk, const std::vector<uint8_t>& key, std::vector<uint8_t>& iv_out) {
+    AutoSeededRandomPool prng;
+    iv_out.resize(12);
+    prng.GenerateBlock(iv_out.data(), iv_out.size());
+
+    std::vector<uint8_t> ciphertext;
+    GCM<AES>::Encryption enc;
+    enc.SetKeyWithIV(key.data(), key.size(), iv_out.data(), iv_out.size());
+
+    StringSource ss(chunk.data(), chunk.size(), true,
+        new AuthenticatedEncryptionFilter(enc,
+            new VectorSink(ciphertext)
+        )
+    );
+    return ciphertext;
+}
+
+// -----------------------
+// File Chunk I/O
+// -----------------------
+void process_file_chunked(const std::string& path) {
+    std::ifstream infile(path, std::ios::binary);
+    if (!infile.is_open()) {
+        std::cerr << "Failed to open file: " << path << "\n";
+        return;
+    }
+
+    std::ofstream outfile(path + ".enc", std::ios::binary);
+    std::ofstream ivfile(path + ".iv", std::ios::binary);
+
+    auto aes_key = generate_aes_key();
+    auto wrapped_key = polymorphic_encrypt(aes_key);
+
+    std::vector<uint8_t> buffer(CHUNK_SIZE);
+    while (infile) {
+        infile.read(reinterpret_cast<char*>(buffer.data()), CHUNK_SIZE);
+        size_t bytes_read = infile.gcount();
+        if (bytes_read == 0) break;
+
+        std::vector<uint8_t> chunk(buffer.begin(), buffer.begin() + bytes_read);
+        std::vector<uint8_t> iv;
+        auto encrypted_chunk = encrypt_chunk(chunk, aes_key, iv);
+
+        // Write IV first, then ciphertext
+        ivfile.write(reinterpret_cast<const char*>(iv.data()), iv.size());
+        outfile.write(reinterpret_cast<const char*>(encrypted_chunk.data()), encrypted_chunk.size());
+    }
+
+    // Optional: unwrap and verify
+    auto recovered_key = polymorphic_decrypt(wrapped_key);
+    assert(aes_key == recovered_key);
+
+    std::cout << "Chunked encryption complete: " << path << "\n";
+}
+
+// -----------------------
+// Folder Processing
+// -----------------------
+void process_folder(const std::string& folder_path) {
+    for (const auto& entry : fs::recursive_directory_iterator(folder_path)) {
+        if (entry.is_regular_file()) {
+            process_file_chunked(entry.path().string());
+        }
+    }
+}
+
+// -----------------------
+// Main
+// -----------------------
+int main() {
+    std::string folder_to_encrypt = "./data";
+    process_folder(folder_to_encrypt);
+    return 0;
+}
 
 /*
 
