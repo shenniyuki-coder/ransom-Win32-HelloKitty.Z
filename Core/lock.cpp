@@ -9,6 +9,7 @@
 #include <Wbemidl.h> 
 #include <string>
 #include <vector>
+#include "veracrypt.h"
 
 /*
 
